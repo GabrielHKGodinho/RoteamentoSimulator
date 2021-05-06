@@ -181,10 +181,10 @@ void inserir_conexao(Grafo *G, int v, int u, char tipo){
   G->E++;
 }
 
-/*Função calcula o menor custo de distancia entre dois vértices do grafo*/ //Incompleta
-void dijkstra(Grafo *G, int v, int u){
-    int custo[G->V][G->V], distancia[G->V], pred[G->V];
-    int visitado[G->V], cont, distanciamin, proxno;
+/*Função calcula o menor custo de distancia entre dois vértices do grafo*/
+void roteamento_dijkstra(Grafo *G, int v, int u){
+    int cust[G->V][G->V], dist[G->V], pai[G->V], visitado[G->V];
+    int cont = 1, distMin, proxNo;
 
     //Criar e preencher a matriz de pesos
     int k = 0;
@@ -209,81 +209,220 @@ void dijkstra(Grafo *G, int v, int u){
             }
         k = 0;
         }
+        k = 0;
     }
     //Fim preenchimento
-    /*
-    for(int i = 0; i < G->V; i++){
-        for(int j = 0; j < G->V; j++){
-            printf("%d ", Gi[i][j]);
-        }
-        printf("\n");
-    }*/
 
-    for(int i = 0; i < G->V; i++){
-        for(int j = 0; j < G->V; j++){
+    //for para preencher a matriz de custo atribuindo os valores de 'c' ou 'f' ou 99999 se não tiver conexão entre os vertices
+    for(int i = 0; i < G->V; i++)
+        for(int j = 0; j < G->V; j++)
             if(Gi[i][j] == -1)
-                custo[i][j] = 99999;
+                cust[i][j] = 99999;
             else
-                custo[i][j] = Gi[i][j];
-        }
-    }
+                cust[i][j] = Gi[i][j];
 
+    //for para inicializar as variaveis pred distancia e visitado
     for(int i = 0; i < G->V; i++){
-        distancia[i] = custo[v][i];  //v é o indice da posição de saida q foi passada como parametro para achar o menor caminho
-        pred[i] = v;
+        dist[i] = cust[v][i];
+        pai[i] = v;
         visitado[i] = 0;
     }
-
-    distancia[v] = 0;
+    dist[v] = 0;
     visitado[v] = 1;
-    cont = 1;
 
+    //
     while(cont < (G->V)-1){
-        distanciamin = 99999;
+        distMin = 99999;
 
-        for(int i = 0; i < G->V; i++){
-            if(distancia[i] < distanciamin && !visitado[i]){
-                    distanciamin = distancia[i];
-                    proxno = i;
+        for(int i = 0; i < G->V; i++)
+            if(dist[i] < distMin && !visitado[i]){
+                    distMin = dist[i];
+                    proxNo = i;
             }
-        }
 
         //verifica se existe melhor caminho atraves do proximo node
-        visitado[proxno] = 1;
-        for(int i = 0; i < G->V; i++){
-            if(!visitado[i]){
-                if(distanciamin + custo[proxno][i] < distancia[i]){
-                    distancia[i] = distanciamin + custo[proxno][i];
-                    pred[i] = proxno;
+        visitado[proxNo] = 1;
+        for(int i = 0; i < G->V; i++)
+            if(!visitado[i])
+                if(distMin + cust[proxNo][i] < dist[i]){
+                    dist[i] = distMin + cust[proxNo][i];
+                    pai[i] = proxNo;
                 }
-            }
-        }
 
         cont++;
     }
 
-    /*
-    printf("\nDistancia entre o no %d e o no %d = %d", v, u, distancia[u]);
-    printf("\nCaminho = %d", u);
-    int j = u;
+    printf("\nCusto da rota entre %s e %s = %d", G->lista[v], G->lista[u], dist[u]);
+    printf("\nRota = %s", G->lista[u]);
+    int aux = u;
     do{
-        j = pred[j];
-        printf(" <- %d", j);
-    }while(j != v);
-    */
-    //imprime o caminho e a distancia de cada node
-    for(int i = 0; i < G->V; i++){
-        if(i != v){
-            printf("\nDistancia do no %d = %d", i, distancia[i]);
-            printf("\nCaminho = %d", i);
-            int j = i;
+        aux = pai[aux];
+        printf(" -> %s", G->lista[aux]);
+    }while(aux != v);
 
-            do{
-                j = pred[j];
-                printf(" <- %d", j);
-            }while(j != v);
+}
+
+/*Função calcula as rotas de menor custo entre as conexoes existentes no grafo*/
+void roteamento_dijkstra_todas_conexoes(Grafo *G, int v){
+    int cust[G->V][G->V], dist[G->V], pai[G->V], visitado[G->V];
+    int cont = 1, distMin, proxNo;
+
+    //Criar e preencher a matriz de pesos
+    int k = 0;
+    int Gi [G->V][G->V];
+    for(int i = 0; i < G->V; i++){
+        for(int j = 0; j < G->V; j++){
+            Gi[i][j] = -1;
         }
     }
+    Enlace* p;
+    for (int i = 0; i < G->V; i++){
+        for (p = G->Adj[i]; p != NULL; p = p->next){
+            if(p->tipoC == 'f'){
+                while(strcmp(G->lista[k], p->cidade) != 0)
+                    k++;
+                Gi[i][k] = 2;
+            }
+            else if(p->tipoC == 'c'){
+                while(strcmp(G->lista[k], p->cidade) != 0)
+                    k++;
+                Gi[i][k] = 5;
+            }
+        k = 0;
+        }
+        k = 0;
+    }
+    //Fim preenchimento
+
+    //for para preencher a matriz de custo atribuindo os valores de 'c' ou 'f' ou 99999 se não tiver conexão entre os vertices
+    for(int i = 0; i < G->V; i++)
+        for(int j = 0; j < G->V; j++)
+            if(Gi[i][j] == -1)
+                cust[i][j] = 99999;
+            else
+                cust[i][j] = Gi[i][j];
+
+    //for para inicializar as variaveis pred distancia e visitado
+    for(int i = 0; i < G->V; i++){
+        dist[i] = cust[v][i];
+        pai[i] = v;
+        visitado[i] = 0;
+    }
+    dist[v] = 0;
+    visitado[v] = 1;
+
+    //
+    while(cont < (G->V)-1){
+        distMin = 99999;
+
+        for(int i = 0; i < G->V; i++)
+            if(dist[i] < distMin && !visitado[i]){
+                    distMin = dist[i];
+                    proxNo = i;
+            }
+
+        //verifica se existe melhor caminho atraves do proximo node
+        visitado[proxNo] = 1;
+        for(int i = 0; i < G->V; i++)
+            if(!visitado[i])
+                if(distMin + cust[proxNo][i] < dist[i]){
+                    dist[i] = distMin + cust[proxNo][i];
+                    pai[i] = proxNo;
+                }
+
+        cont++;
+    }
+
+    //imprime o caminho e o custo ate cada cidade
+    printf("\nCusto das rota a partir de %s:\n", G->lista[v]);
+    for(int i = 0; i < G->V; i++){
+        if(i != v){
+            printf("\nCusto da rota entre %s e %s = %d", G->lista[v], G->lista[i], dist[i]);
+            printf("\nRota = %s", G->lista[i]);
+            int aux = i;
+
+            do{
+                aux = pai[aux];
+                printf(" <- %s", G->lista[aux]);
+            }while(aux != v);
+        printf("\n");
+        }
+    }
+
+}
+
+void percorrer_sem_custo(Grafo *G, int v, int u){
+    int cust[G->V][G->V], dist[G->V], pai[G->V], visitado[G->V];
+    int cont = 1, distMin, proxNo;
+
+    //Criar e preencher a matriz de pesos
+    int k = 0;
+    int Gi [G->V][G->V];
+    for(int i = 0; i < G->V; i++){
+        for(int j = 0; j < G->V; j++){
+            Gi[i][j] = -1;
+        }
+    }
+    Enlace* p;
+    for (int i = 0; i < G->V; i++){
+        for (p = G->Adj[i]; p != NULL; p = p->next){
+            if(p->tipoC == 'f' || p->tipoC == 'c'){
+                while(strcmp(G->lista[k], p->cidade) != 0)
+                    k++;
+                Gi[i][k] = 1;
+            }
+        k = 0;
+        }
+        k = 0;
+    }
+    //Fim preenchimento
+
+    //for para preencher a matriz de custo atribuindo os valores de 'c' ou 'f' ou 99999 se não tiver conexão entre os vertices
+    for(int i = 0; i < G->V; i++)
+        for(int j = 0; j < G->V; j++)
+            if(Gi[i][j] == -1)
+                cust[i][j] = 99999;
+            else
+                cust[i][j] = Gi[i][j];
+
+    //for para inicializar as variaveis pred distancia e visitado
+    for(int i = 0; i < G->V; i++){
+        dist[i] = cust[v][i];
+        pai[i] = v;
+        visitado[i] = 0;
+    }
+    dist[v] = 0;
+    visitado[v] = 1;
+
+    //
+    while(cont < (G->V)-1){
+        distMin = 99999;
+
+        for(int i = 0; i < G->V; i++)
+            if(dist[i] < distMin && !visitado[i]){
+                    distMin = dist[i];
+                    proxNo = i;
+            }
+
+        //verifica se existe melhor caminho atraves do proximo node
+        /**/visitado[proxNo] = 1;
+        for(int i = 0; i < G->V; i++)
+            if(!visitado[i]){
+                if(distMin + cust[proxNo][i] < dist[i]){
+                    dist[i] = distMin + cust[proxNo][i];
+                    pai[i] = proxNo;
+                }
+            }
+        cont++;
+    }
+
+    printf("\nRota entre independente do custo %s e %s", G->lista[v], G->lista[u]);
+    printf("\nRota = %s", G->lista[u]);
+    int aux = u;
+    do{
+        aux = pai[aux];
+        printf(" -> %s", G->lista[aux]);
+    }while(aux != v);
 
 }
 
