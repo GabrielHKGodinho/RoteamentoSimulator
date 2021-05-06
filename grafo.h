@@ -41,7 +41,11 @@ void remover_conexao(Grafo *G, int v, int u);
 
 void desconectar( Grafo*G, int v, int u);
 
-void dijkstra(Grafo *G, int v, int u);
+void roteamento_dijkstra(Grafo *G, int v, int u);
+
+void roteamento_dijkstra_todas_conexoes(Grafo *G, int v);
+
+void percorrer_sem_custo(Grafo *G, int v, int u);
 
 FILE* salvar(Grafo *G);
 
