@@ -32,8 +32,12 @@ void liberar_grafo (Grafo *G);
 
 void imprimir_grafo(Grafo *G);
 
-void realiza_aconexao(Grafo *G, int v, int u, char tipo);
+void realiza_conexao(Grafo *G, int v, int u, char tipo);
 
 void inserir_conexao(Grafo *G, int v, int u, char tipo);
+
+void remover_conexao(Grafo *G, int v, int u);
+
+void desconectar( Grafo*G, int v, int u);
 
 #endif
