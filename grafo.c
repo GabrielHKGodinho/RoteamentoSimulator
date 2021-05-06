@@ -96,6 +96,10 @@ void adiciona_cidade(Grafo*G, char cid[SIGLA]){
     strcpy(G->lista[G->V-1],cid);
 }
 
+void remove_cidade(Grafo *G, int c){
+
+}
+
 /*Função para criar um grafo com matriz de adjacências com 0 em todas as posições.*/
 Grafo* criar_grafo () {
     Grafo *G = (Grafo *)malloc(sizeof(Grafo));
@@ -117,6 +121,7 @@ void liberar_grafo (Grafo *G) {
       }
    }
    free(G->Adj);
+   free(G->lista);
    free(G);
 }
 
@@ -133,7 +138,7 @@ void imprimir_grafo(Grafo *G){
 }
 
 /*Realiza a conexao ordenada*/
-void realiza_aconexao(Grafo *G, int v, int u, char tipo){
+void realiza_conexao(Grafo *G, int v, int u, char tipo){
     Enlace* p=G->Adj[v];
     while(p!=NULL){
         if(strcmp(p->cidade,G->lista[u])==0)
@@ -149,9 +154,34 @@ void realiza_aconexao(Grafo *G, int v, int u, char tipo){
 
 /*Função para inserir uma conexao na rede*/
 void inserir_conexao(Grafo *G, int v, int u, char tipo){
-  realiza_aconexao(G,v,u,tipo);
-  realiza_aconexao(G,u,v,tipo);
+  realiza_conexao(G,v,u,tipo);
+  realiza_conexao(G,u,v,tipo);
   G->E++;
+}
+
+void remover_conexao(Grafo *G, int v, int u){
+    Enlace* p=G->Adj[v];
+    Enlace* aux=G->Adj[v];
+    while(strcmp(p->cidade,G->lista[u])!=0){
+        if(p==NULL)
+            return;
+        aux=p;
+        p=p->next;
+    }
+    if (aux==p){
+        G->Adj[v]=p->next;
+        free(p);
+    }
+    else{
+        aux->next=p->next;
+        free(p);
+    }
+}
+
+void desconectar( Grafo*G, int v, int u){
+    remover_conexao(G, v, u);
+    remover_conexao(G, u, v);
+    G->E--;
 }
 
 int main () {
@@ -180,12 +210,11 @@ int main () {
                     printf("('f' para fibra optica e 'c' para cabo ethernet: \n\n");
                     scanf("%d %d %c",&cid1,&cid2,&tipo);
                     getchar();
-                    printf("%d %d %c",cid1,cid2,tipo);
 
                     if(tipo>=65 && tipo<=90)
                         tipo+=32;
 
-                    if (cid1<G->V && cid2<G->V && (tipo=='c' || tipo=='f')){
+                    if (cid1<G->V && cid2<G->V && (tipo=='c' || tipo=='f')&&(cid1>=0 && cid2>=0)){
                         inserir_conexao(G,cid1,cid2,tipo);
                         break;
                     }
@@ -196,6 +225,18 @@ int main () {
 
             case'b':
             case 'B':
+                while(cid1!=-1){
+                    printf("Digite '-1 X' para cancelar\nDigite o codigo das duas cidades a serem desconectadas:\n\n");
+                    scanf("%d %d",&cid1,&cid2);
+                    getchar();
+
+                    if ((cid1<G->V && cid2<G->V)&&(cid1>=0 && cid2>=0)){
+                        desconectar(G,cid1,cid2);
+                        break;
+                    }
+                    system("cls");
+                }
+                cid1=0;
                 break;
 
             case'c':
@@ -241,5 +282,6 @@ int main () {
 
     }
 
+    liberar_grafo(G);
     return 0;
 }
