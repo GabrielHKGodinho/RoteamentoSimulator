@@ -40,4 +40,6 @@ void remover_conexao(Grafo *G, int v, int u);
 
 void desconectar( Grafo*G, int v, int u);
 
+void dijkstra(Grafo *G, int v, int u);
+
 #endif
