@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #define CIDADES 28
 #define SIGLA 4
+#define BACKUP ".\\save.txt"
 
 /*Estrutura de um enlace da rede*/
 typedef struct enlace {
@@ -20,7 +21,7 @@ typedef struct grafo {
     Enlace **Adj; /* Lista de adjacências. */
 } Grafo;
 
-void preencher_lista(Grafo *G);
+void preencher_grafo(Grafo *G);
 
 char** inicia_lista();
 
