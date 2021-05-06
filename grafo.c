@@ -339,6 +339,7 @@ FILE* salvar(Grafo *G){
     return arq;
 }
 
+/*Carrega o grafo salvo*/
 Grafo* carregar(Grafo *G){
     liberar_grafo(G);
 
