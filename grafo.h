@@ -43,4 +43,8 @@ void desconectar( Grafo*G, int v, int u);
 
 void dijkstra(Grafo *G, int v, int u);
 
+FILE* salvar(Grafo *G);
+
+Grafo* carregar(Grafo *G);
+
 #endif
