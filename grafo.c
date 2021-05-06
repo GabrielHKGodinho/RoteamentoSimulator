@@ -1,6 +1,7 @@
 #include "grafo.h"
 
-void preencher_lista(Grafo *G){
+/* Essa funcao preenche o grafo com as cidades e conexoes padroes */
+void preencher_grafo(Grafo *G){
     adiciona_cidade(G,"FLO\0");//1
     adiciona_cidade(G,"CWB\0");//2
     adiciona_cidade(G,"SPO\0");//3
@@ -76,6 +77,7 @@ void preencher_lista(Grafo *G){
 
 }
 
+/* Funcao para alocar a lista */
 char** inicia_lista(){
     char** m;
     m=(char**)malloc(sizeof(char*));
@@ -87,6 +89,7 @@ char** inicia_lista(){
     return m;
 }
 
+/*Funcao para adicionar uma cidade(vertice) ao grafo*/
 void adiciona_cidade(Grafo*G, char cid[SIGLA]){
     G->V++;
     G->Adj=(Enlace**)realloc(G->Adj,G->V*sizeof(Enlace*));
@@ -96,7 +99,26 @@ void adiciona_cidade(Grafo*G, char cid[SIGLA]){
     strcpy(G->lista[G->V-1],cid);
 }
 
+/*Funcao para remover uma cidade(vertice) do grafo*/
 void remove_cidade(Grafo *G, int c){
+    int i,j;
+    Enlace* p;
+
+    for(p=G->Adj[c];p!=NULL;p=p->next){
+        j=0;
+        while(strcmp(G->lista[j],p->cidade)!=0){
+            j++;
+        }
+        desconectar(G,c,j);
+    }
+
+    G->V--;
+    for(i=c; i<G->V; i++){
+        G->Adj[i]=G->Adj[i+1];
+        G->lista[i]=G->lista[i+1];
+    }
+    G->Adj=(Enlace**)realloc(G->Adj,G->V*sizeof(Enlace*));
+    G->lista=(char**)realloc(G->lista,G->V*sizeof(char*));
 
 }
 
@@ -112,7 +134,7 @@ Grafo* criar_grafo () {
     return G;
 }
 
-/*Função para destruir um grafo construído com matriz de adjacências.*/
+/*Função para destruir um grafo construído com lista de adjacências.*/
 void liberar_grafo (Grafo *G) {
    int v;
    for (v = 0; v < G->V; v++) {
@@ -125,12 +147,12 @@ void liberar_grafo (Grafo *G) {
    free(G);
 }
 
-/*Função para imprimir o grafo com seus devidos pesos*/
+/*Função para imprimir o grafo com seus devidos tipos de conexao*/
 void imprimir_grafo(Grafo *G){
     int i;
     Enlace* p;
     for (i = 0; i < G->V; i++){
-        printf("%s->", G->lista[i]);
+        printf("[%.2d] %s->",i, G->lista[i]);
         for (p = G->Adj[i]; p != NULL; p = p->next)
             printf(" %s (Tipo: %c) ", p->cidade,p->tipoC);
         printf("\n");
@@ -187,7 +209,6 @@ void dijkstra(Grafo *G, int v, int u){
             }
         k = 0;
         }
-        k = 0;
     }
     //Fim preenchimento
     /*
@@ -266,6 +287,7 @@ void dijkstra(Grafo *G, int v, int u){
 
 }
 
+/*Funcao para remover conexao ordenada*/
 void remover_conexao(Grafo *G, int v, int u){
     Enlace* p=G->Adj[v];
     Enlace* aux=G->Adj[v];
@@ -285,36 +307,47 @@ void remover_conexao(Grafo *G, int v, int u){
     }
 }
 
+/*Funcao para remover a conexao(aresta) entre duas cidades*/
 void desconectar( Grafo*G, int v, int u){
     remover_conexao(G, v, u);
     remover_conexao(G, u, v);
     G->E--;
 }
 
+FILE* salvar(Grafo *G){
+    FILE*p=fopen(BACKUP,"w+");
+
+}
+
 int main () {
-    char state='a',tipo;
-    char cidadenova[100];
-    int i,cid1,cid2;
+    char state='a';         /*Representa a escolha no menu*/
+    char tipo;              /*'f' ou 'c' para adicionar conexoes*/
+    char cidadenova[100];   /*Sigla da cidade a ser adicionada*/
+    int i;                  /*Para iteracoes*/
+    int cid1;               /*Indice da cidade 1*/
+    int cid2;               /*Indice da cidade 2*/
 
     Grafo *G = criar_grafo();
 
-    preencher_lista(G);
+    preencher_grafo(G);
 
+    /*Menu do simulador*/
     while(state){
         system("cls");
         printf("\t\t\tSIMULADOR DE NETWORK\n\n");
-        printf("MENU: \nA. Adicionar conexao\nB. Remover conexao\nC. Procurar melhor rota\nD. Lista de Servidores\n");
-        printf("E. Adicionar Cidade\nF. Remover Cidade\nG. Sair\n");
+        printf("MENU: \nA. Adicionar conexao\nB. Remover conexao\nC. Alterar Conexao\nD. Procurar melhor rota\n");
+        printf("E. Lista de Servidores\nF. Adicionar Cidade\nG. Remover Cidade\nH. Salvar\nI. Carregar\nJ. Sair\n");
         scanf("%c",&state);
         getchar();
         system("cls");
 
         switch (state) {
+            /*ADICIONAR CONEXAO*/
             case'a':
             case 'A':
                 while(tipo!='z'){
-                    printf("Digite 'X X z' para cancelar\nDigite o codigo das duas cidades a serem conectadas e o tipo de conexao");
-                    printf("('f' para fibra optica e 'c' para cabo ethernet: \n\n");
+                    printf("-Digite 'X X z' para cancelar\n\n-Digite o codigo das duas cidades a serem conectadas e o tipo de conexao\n");
+                    printf("\t('f' para fibra optica e 'c' para cabo ethernet): \n\n");
                     scanf("%d %d %c",&cid1,&cid2,&tipo);
                     getchar();
 
@@ -330,10 +363,11 @@ int main () {
                 tipo='a';
                 break;
 
+            /*REMOVER CONEXAO*/
             case'b':
             case 'B':
                 while(cid1!=-1){
-                    printf("Digite '-1 X' para cancelar\nDigite o codigo das duas cidades a serem desconectadas:\n\n");
+                    printf("-Digite '-1 X' para cancelar\n\n-Digite o codigo das duas cidades a serem desconectadas:\n\n");
                     scanf("%d %d",&cid1,&cid2);
                     getchar();
 
@@ -346,20 +380,28 @@ int main () {
                 cid1=0;
                 break;
 
+            /*ALTERAR TIPO DA ROTA*/
             case'c':
             case 'C':
                 break;
 
+            /*PROCURAR MELHOR ROTA*/
             case'd':
             case 'D':
+                break;
+
+            /*LISTAR CIDADES*/
+            case'e':
+            case 'E':
                 imprimir_grafo(G);
                 getchar();
                 break;
 
-            case'e':
-            case 'E':
+            /*ADICIONAR CIDADE*/
+            case'f':
+            case 'F':
                 while(strcmp(cidadenova,"z")!=0&&strcmp(cidadenova,"Z")!=0){
-                    printf("Digite 'z' para cancelar\nDigite a sigla da cidade a ser inserida (3 letras, todas maiusculas): ");
+                    printf("-Digite 'z' para cancelar\n\n-Digite a sigla da cidade a ser inserida (3 letras, todas maiusculas): ");
                     scanf("%s",&cidadenova);
                     getchar();
                     system("cls");
@@ -377,12 +419,35 @@ int main () {
                 strcpy(cidadenova,"n");
                 break;
 
-            case'f':
-            case 'F':
-                break;
-
+            /*REMOVER CIDADE*/
             case'g':
             case 'G':
+                while(cid1!=-1){
+                    printf("-Digite '-1' para cancelar\n\n-Digite o codigo da cidade a ser removida:\n\n");
+                    scanf("%d",&cid1);
+                    getchar();
+
+                    if ((cid1<G->V)&&(cid1>=0)){
+                        remove_cidade(G,cid1);
+                        break;
+                    }
+                }
+                cid1=0;
+                break;
+
+            /*SALVAR GRAFO*/
+            case'h':
+            case 'H':
+                break;
+
+            /*CARREGAR GRAFO*/
+            case'i':
+            case 'I':
+                break;
+
+            /*SAIR DO SIMULADOR*/
+            case'j':
+            case 'J':
                 return 0;
                 break;
         }
