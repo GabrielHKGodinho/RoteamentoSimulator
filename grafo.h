@@ -22,14 +22,18 @@ typedef struct grafo {
 
 void preencher_lista(Grafo *G);
 
+char** inicia_lista();
+
+void adiciona_cidade(Grafo*G, char cid[SIGLA]);
+
 Grafo* criar_grafo ();
 
 void liberar_grafo (Grafo *G);
 
 void imprimir_grafo(Grafo *G);
 
-void inserir_conexao(Grafo *G, int v, int u, char tipo);
-
 void realiza_aconexao(Grafo *G, int v, int u, char tipo);
+
+void inserir_conexao(Grafo *G, int v, int u, char tipo);
 
 #endif
