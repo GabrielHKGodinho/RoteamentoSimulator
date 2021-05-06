@@ -159,6 +159,113 @@ void inserir_conexao(Grafo *G, int v, int u, char tipo){
   G->E++;
 }
 
+/*Função calcula o menor custo de distancia entre dois vértices do grafo*/ //Incompleta
+void dijkstra(Grafo *G, int v, int u){
+    int custo[G->V][G->V], distancia[G->V], pred[G->V];
+    int visitado[G->V], cont, distanciamin, proxno;
+
+    //Criar e preencher a matriz de pesos
+    int k = 0;
+    int Gi [G->V][G->V];
+    for(int i = 0; i < G->V; i++){
+        for(int j = 0; j < G->V; j++){
+            Gi[i][j] = -1;
+        }
+    }
+    Enlace* p;
+    for (int i = 0; i < G->V; i++){
+        for (p = G->Adj[i]; p != NULL; p = p->next){
+            if(p->tipoC == 'f'){
+                while(strcmp(G->lista[k], p->cidade) != 0)
+                    k++;
+                Gi[i][k] = 2;
+            }
+            else if(p->tipoC == 'c'){
+                while(strcmp(G->lista[k], p->cidade) != 0)
+                    k++;
+                Gi[i][k] = 5;
+            }
+        k = 0;
+        }
+        k = 0;
+    }
+    //Fim preenchimento
+    /*
+    for(int i = 0; i < G->V; i++){
+        for(int j = 0; j < G->V; j++){
+            printf("%d ", Gi[i][j]);
+        }
+        printf("\n");
+    }*/
+
+    for(int i = 0; i < G->V; i++){
+        for(int j = 0; j < G->V; j++){
+            if(Gi[i][j] == -1)
+                custo[i][j] = 99999;
+            else
+                custo[i][j] = Gi[i][j];
+        }
+    }
+
+    for(int i = 0; i < G->V; i++){
+        distancia[i] = custo[v][i];  //v é o indice da posição de saida q foi passada como parametro para achar o menor caminho
+        pred[i] = v;
+        visitado[i] = 0;
+    }
+
+    distancia[v] = 0;
+    visitado[v] = 1;
+    cont = 1;
+
+    while(cont < (G->V)-1){
+        distanciamin = 99999;
+
+        for(int i = 0; i < G->V; i++){
+            if(distancia[i] < distanciamin && !visitado[i]){
+                    distanciamin = distancia[i];
+                    proxno = i;
+            }
+        }
+
+        //verifica se existe melhor caminho atraves do proximo node
+        visitado[proxno] = 1;
+        for(int i = 0; i < G->V; i++){
+            if(!visitado[i]){
+                if(distanciamin + custo[proxno][i] < distancia[i]){
+                    distancia[i] = distanciamin + custo[proxno][i];
+                    pred[i] = proxno;
+                }
+            }
+        }
+
+        cont++;
+    }
+
+    /*
+    printf("\nDistancia entre o no %d e o no %d = %d", v, u, distancia[u]);
+    printf("\nCaminho = %d", u);
+    int j = u;
+    do{
+        j = pred[j];
+        printf(" <- %d", j);
+    }while(j != v);
+    */
+    //imprime o caminho e a distancia de cada node
+    for(int i = 0; i < G->V; i++){
+        if(i != v){
+            printf("\nDistancia do no %d = %d", i, distancia[i]);
+            printf("\nCaminho = %d", i);
+            int j = i;
+
+            do{
+                j = pred[j];
+                printf(" <- %d", j);
+            }while(j != v);
+        }
+    }
+
+}
+
 void remover_conexao(Grafo *G, int v, int u){
     Enlace* p=G->Adj[v];
     Enlace* aux=G->Adj[v];
