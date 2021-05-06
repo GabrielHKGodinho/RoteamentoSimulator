@@ -569,14 +569,58 @@ int main () {
                 cid1=0;
                 break;
 
-            /*ALTERAR TIPO DA ROTA*/
+           /*IMPRIME TODAS AS CONEXOES DE UM VÉRTICE UTILIZANDO OS MENORES CAMINHOS*/
             case'c':
             case 'C':
+                while(cid1!=-1){
+                    printf("-Digite '-1 X' para cancelar\n\n-Digite o codigo da cidades para visualizar suas conexoes: ");
+                    scanf("%d",&cid1);
+                    getchar();
+
+                    if ((cid1<G->V)&&(cid1>=0)){
+                        roteamento_dijkstra_todas_conexoes(G,cid1);
+                        getchar();
+                        break;
+                    }
+                    system("cls");
+                }
+                cid1=0;
                 break;
 
             /*PROCURAR MELHOR ROTA*/
             case'd':
             case 'D':
+                while(cid1!=-1){
+                    printf("-Digite '-1 X' para cancelar\n\n-Digite o codigo de duas cidades para encontrar a melhor rota entre elas:\n\n");
+                    scanf("%d %d",&cid1,&cid2);
+                    getchar();
+
+                    if ((cid1<G->V && cid2<G->V)&&(cid1>=0 && cid2>=0)){
+                        roteamento_dijkstra(G, cid2, cid1);
+                        getchar();
+                        break;
+                    }
+                    system("cls");
+                }
+                cid1=0;
+                break;
+
+            /*MOSTRA UMA ROTA INDEPENDENTE DO CUSTO*/
+            case'Y':
+            case 'y':
+                while(cid1!=-1){
+                    printf("-Digite '-1 X' para cancelar\n\n-Digite o codigo de duas cidades para encontrar uma rota entre elas:\n\n");
+                    scanf("%d %d",&cid1,&cid2);
+                    getchar();
+
+                    if ((cid1<G->V && cid2<G->V)&&(cid1>=0 && cid2>=0)){
+                        percorrer_sem_custo(G, cid2, cid1);
+                        getchar();
+                        break;
+                    }
+                    system("cls");
+                }
+                cid1=0;
                 break;
 
             /*LISTAR CIDADES*/
