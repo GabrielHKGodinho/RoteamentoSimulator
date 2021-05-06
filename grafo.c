@@ -314,18 +314,67 @@ void desconectar( Grafo*G, int v, int u){
     G->E--;
 }
 
+/*Salva o grafo em um arquivo .txt*/
 FILE* salvar(Grafo *G){
-    FILE*p=fopen(BACKUP,"w+");
+    FILE*arq=fopen(BACKUP,"w+");
+    Enlace *p;
+    int i,j;
+    for(i=0;i<G->V;i++)
+        fprintf(arq,"%s\n",G->lista[i]);
 
+    fprintf(arq,"FIM\n");
+
+    for(i=0;i<G->V;i++)
+        for(p=G->Adj[i];p!=NULL;p=p->next){
+            j=0;
+            while(strcmp(G->lista[j],p->cidade)!=0){
+                j++;
+            }
+            fprintf(arq,"%d %d %c\n",i,j,p->tipoC);
+        }
+    fprintf(arq,"0 0 z");
+
+    fclose(arq);
+
+    return arq;
+}
+
+Grafo* carregar(Grafo *G){
+    liberar_grafo(G);
+
+    Grafo* Gn=criar_grafo();
+    remove_cidade(Gn,0);
+
+    FILE* arq=fopen(BACKUP,"r");
+
+    int cid1,cid2;
+    char read[SIGLA],tipo='c';
+
+    while(strcmp(read,"FIM")!=0){
+        fscanf(arq,"%s",read);
+        adiciona_cidade(Gn,read);
+    }
+    remove_cidade(Gn,Gn->V-1);
+
+    while(tipo!='z'){
+        fscanf(arq,"%d %d %c",&cid1,&cid2,&tipo);
+        inserir_conexao(Gn,cid1,cid2,tipo);
+    }
+    remover_conexao(Gn,0,0);
+
+    fclose(arq);
+    return Gn;
 }
 
 int main () {
     char state='a';         /*Representa a escolha no menu*/
     char tipo;              /*'f' ou 'c' para adicionar conexoes*/
+    char resp='t';          /*Resposta do usuario*/
     char cidadenova[100];   /*Sigla da cidade a ser adicionada*/
     int i;                  /*Para iteracoes*/
     int cid1;               /*Indice da cidade 1*/
     int cid2;               /*Indice da cidade 2*/
+    FILE *parq;             /*Ponteiro pro arquivo*/
 
     Grafo *G = criar_grafo();
 
@@ -336,7 +385,7 @@ int main () {
         system("cls");
         printf("\t\t\tSIMULADOR DE NETWORK\n\n");
         printf("MENU: \nA. Adicionar conexao\nB. Remover conexao\nC. Alterar Conexao\nD. Procurar melhor rota\n");
-        printf("E. Lista de Servidores\nF. Adicionar Cidade\nG. Remover Cidade\nH. Salvar\nI. Carregar\nJ. Sair\n");
+        printf("E. Lista de Servidores\nF. Adicionar Cidade\nG. Remover Cidade\nH. Limpar Simulacao\nI. Salvar\nJ. Carregar\nK. Sair\n");
         scanf("%c",&state);
         getchar();
         system("cls");
@@ -435,19 +484,46 @@ int main () {
                 cid1=0;
                 break;
 
-            /*SALVAR GRAFO*/
+            /*LIMPAR GRAFO*/
             case'h':
             case 'H':
+                while(resp!='y'&&resp!='n'){
+                    printf("Tem certeza que deseja excluir a simulacao atual?(y/n)\n");
+                    scanf("%c",&resp);
+                    getchar();
+                    system("cls");
+                    if(resp>=65&&resp<=90)
+                        resp+=32;
+                }
+                if(resp=='y'){
+                    liberar_grafo(G);
+                    G=criar_grafo();
+                    remove_cidade(G,0);
+                    printf("Simulacao excluida com sucesso!\n");
+                    getchar();
+                }
+                resp='t';
+                break;
+
+            /*SALVAR GRAFO*/
+            case'i':
+            case 'I':
+                parq=salvar(G);
+                printf("Simulacao salva com sucesso!\n");
+                getchar();
                 break;
 
             /*CARREGAR GRAFO*/
-            case'i':
-            case 'I':
+            case'j':
+            case 'J':
+                G=carregar(G);
+                printf("Dados carregados com sucesso!\n");
+                getchar();
                 break;
 
             /*SAIR DO SIMULADOR*/
-            case'j':
-            case 'J':
+            case'k':
+            case 'K':
                 return 0;
                 break;
         }
