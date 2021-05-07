@@ -37,11 +37,13 @@ void realiza_conexao(Grafo *G, int v, int u, char tipo);
 
 void inserir_conexao(Grafo *G, int v, int u, char tipo);
 
+void altera_conexao(Grafo* G,int v, int u, char tipo);
+
 void remover_conexao(Grafo *G, int v, int u);
 
 void desconectar( Grafo*G, int v, int u);
 
-void roteamento_dijkstra(Grafo *G, int v, int u);
+void dijkstra(Grafo *G, int v, int u);
 
 void roteamento_dijkstra_todas_conexoes(Grafo *G, int v);
 
