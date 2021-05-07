@@ -181,6 +181,17 @@ void inserir_conexao(Grafo *G, int v, int u, char tipo){
   G->E++;
 }
 
+/*Funcao para alterar o tipo de uma conexao ja existente*/
+void altera_conexao(Grafo* G,int v, int u, char tipo){
+    Enlace *p=G->Adj[v];
+    while(p!=NULL){
+        if(strcmp(G->lista[u],p->cidade)==0)
+            p->tipoC=tipo;
+
+        p=p->next;
+    }
+}
+
 /*Função calcula o menor custo de distancia entre dois vértices do grafo*/
 void roteamento_dijkstra(Grafo *G, int v, int u){
     int cust[G->V][G->V], dist[G->V], pai[G->V], visitado[G->V];
@@ -351,6 +362,7 @@ void roteamento_dijkstra_todas_conexoes(Grafo *G, int v){
 
 }
 
+/*Funcao para achar a rota com menor numero de saltos*/
 void percorrer_sem_custo(Grafo *G, int v, int u){
     int cust[G->V][G->V], dist[G->V], pai[G->V], visitado[G->V];
     int cont = 1, distMin, proxNo;
@@ -524,8 +536,8 @@ int main () {
     while(state){
         system("cls");
         printf("\t\t\tSIMULADOR DE NETWORK\n\n");
-        printf("MENU: \nA. Adicionar conexao\nB. Remover conexao\nC. Alterar Conexao\nD. Procurar melhor rota\n");
-        printf("E. Lista de Servidores\nF. Adicionar Cidade\nG. Remover Cidade\nH. Limpar Simulacao\nI. Salvar\nJ. Carregar\nK. Sair\n");
+        printf("MENU: \nA. Adicionar conexao\nB. Remover conexao\nC. Alterar Conexao\n\nD. Rota para todas as cidades\nE. Melhor Rota entre duas cidades\n");
+        printf("F. Rota mais curta\n\nG. Lista de Servidores\n\nH. Adicionar Cidade\nI. Remover Cidade\nJ. Limpar Simulacao\n\nK. Salvar\nL. Carregar\n\nM. Sair\n\n\n");
         scanf("%c",&state);
         getchar();
         system("cls");
@@ -569,13 +581,35 @@ int main () {
                 cid1=0;
                 break;
 
-           /*IMPRIME TODAS AS CONEXOES DE UM VÉRTICE UTILIZANDO OS MENORES CAMINHOS*/
+            /*TROCAR TIPO DA ROTA*/
             case'c':
             case 'C':
+                while(tipo!='z'){
+                    printf("-Digite 'X X z' para cancelar\n\n-Digite o codigo das duas cidades conectadas e o novo tipo de conexao\n");
+                    printf("\t('f' para fibra optica e 'c' para cabo ethernet): \n\n");
+                    scanf("%d %d %c",&cid1,&cid2,&tipo);
+                    getchar();
+
+                    if(tipo>=65 && tipo<=90)
+                        tipo+=32;
+
+                    if (cid1<G->V && cid2<G->V && (tipo=='c' || tipo=='f')&&(cid1>=0 && cid2>=0)){
+                        altera_conexao(G,cid1,cid2,tipo);
+                        break;
+                    }
+                    system("cls");
+                }
+                tipo='a';
+                break;
+
+           /*IMPRIME TODAS AS CONEXOES DE UM VÉRTICE UTILIZANDO OS MENORES CAMINHOS*/
+            case'd':
+            case 'D':
                 while(cid1!=-1){
-                    printf("-Digite '-1 X' para cancelar\n\n-Digite o codigo da cidades para visualizar suas conexoes: ");
+                    printf("-Digite '-1 X' para cancelar\n\n-Digite o codigo da cidade para visualizar suas conexoes: ");
                     scanf("%d",&cid1);
                     getchar();
+                    system("cls");
 
                     if ((cid1<G->V)&&(cid1>=0)){
                         roteamento_dijkstra_todas_conexoes(G,cid1);
@@ -588,12 +622,13 @@ int main () {
                 break;
 
             /*PROCURAR MELHOR ROTA*/
-            case'd':
-            case 'D':
+            case'e':
+            case 'E':
                 while(cid1!=-1){
                     printf("-Digite '-1 X' para cancelar\n\n-Digite o codigo de duas cidades para encontrar a melhor rota entre elas:\n\n");
                     scanf("%d %d",&cid1,&cid2);
                     getchar();
+                    system("cls");
 
                     if ((cid1<G->V && cid2<G->V)&&(cid1>=0 && cid2>=0)){
                         roteamento_dijkstra(G, cid2, cid1);
@@ -606,12 +641,13 @@ int main () {
                 break;
 
             /*MOSTRA UMA ROTA INDEPENDENTE DO CUSTO*/
-            case'Y':
-            case 'y':
+            case'f':
+            case 'F':
                 while(cid1!=-1){
-                    printf("-Digite '-1 X' para cancelar\n\n-Digite o codigo de duas cidades para encontrar uma rota entre elas:\n\n");
+                    printf("-Digite '-1 X' para cancelar\n\n-Digite o codigo de duas cidades para encontrar a menor rota entre elas:\n\n");
                     scanf("%d %d",&cid1,&cid2);
                     getchar();
+                    system("cls");
 
                     if ((cid1<G->V && cid2<G->V)&&(cid1>=0 && cid2>=0)){
                         percorrer_sem_custo(G, cid2, cid1);
@@ -624,15 +660,15 @@ int main () {
                 break;
 
             /*LISTAR CIDADES*/
-            case'e':
-            case 'E':
+            case'g':
+            case 'G':
                 imprimir_grafo(G);
                 getchar();
                 break;
 
             /*ADICIONAR CIDADE*/
-            case'f':
-            case 'F':
+            case'h':
+            case 'H':
                 while(strcmp(cidadenova,"z")!=0&&strcmp(cidadenova,"Z")!=0){
                     printf("-Digite 'z' para cancelar\n\n-Digite a sigla da cidade a ser inserida (3 letras, todas maiusculas): ");
                     scanf("%s",&cidadenova);
@@ -653,8 +689,8 @@ int main () {
                 break;
 
             /*REMOVER CIDADE*/
-            case'g':
-            case 'G':
+            case'i':
+            case 'I':
                 while(cid1!=-1){
                     printf("-Digite '-1' para cancelar\n\n-Digite o codigo da cidade a ser removida:\n\n");
                     scanf("%d",&cid1);
@@ -669,8 +705,8 @@ int main () {
                 break;
 
             /*LIMPAR GRAFO*/
-            case'h':
-            case 'H':
+            case'j':
+            case 'J':
                 while(resp!='y'&&resp!='n'){
                     printf("Tem certeza que deseja excluir a simulacao atual?(y/n)\n");
                     scanf("%c",&resp);
@@ -690,24 +726,24 @@ int main () {
                 break;
 
             /*SALVAR GRAFO*/
-            case'i':
-            case 'I':
+            case'k':
+            case 'K':
                 parq=salvar(G);
                 printf("Simulacao salva com sucesso!\n");
                 getchar();
                 break;
 
             /*CARREGAR GRAFO*/
-            case'j':
-            case 'J':
+            case'l':
+            case 'L':
                 G=carregar(G);
                 printf("Dados carregados com sucesso!\n");
                 getchar();
                 break;
 
             /*SAIR DO SIMULADOR*/
-            case'k':
-            case 'K':
+            case'm':
+            case 'M':
                 return 0;
                 break;
         }
